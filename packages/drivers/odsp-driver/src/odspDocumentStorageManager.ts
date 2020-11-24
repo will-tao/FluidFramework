@@ -226,17 +226,6 @@ export class OdspDocumentStorageService implements IDocumentStorageService {
     }
 
     public async read(blobid: string): Promise<string> {
-        return this.readWithEncodingOutput(blobid, "base64");
-    }
-
-    /**
-     * {@inheritDoc @fluidframework/driver-definitions#IDocumentStorageService.readString}
-     */
-    public async readString(blobid: string): Promise<string> {
-        return this.readWithEncodingOutput(blobid, "string");
-    }
-
-    private async readWithEncodingOutput(blobid: string, outputFormat: string) {
         let blob = this.blobCache.get(blobid);
         // Reset the timer on attempted cache read
         this.scheduleClearBlobsCache();
@@ -265,25 +254,10 @@ export class OdspDocumentStorageService implements IDocumentStorageService {
             // ODSP document ids are random guids (different per session)
             // fix the branch name in attributes
             // this prevents issues when generating summaries
-            if (blob.encoding === "base64") {
-                const documentAttributes: api.IDocumentAttributes = JSON.parse(fromBase64ToUtf8(blob.content));
-                documentAttributes.branch = this.documentId;
+            const documentAttributes: api.IDocumentAttributes = JSON.parse(fromBase64ToUtf8(blob.content));
+            documentAttributes.branch = this.documentId;
 
-                if (outputFormat === "base64") {
-                    blob.content = fromUtf8ToBase64(JSON.stringify(documentAttributes));
-                } else {
-                    blob.content = JSON.stringify(documentAttributes);
-                }
-            } else {
-                const documentAttributes: api.IDocumentAttributes = JSON.parse(blob.content);
-                documentAttributes.branch = this.documentId;
-
-                if (outputFormat === "base64") {
-                    blob.content = fromUtf8ToBase64(JSON.stringify(documentAttributes));
-                } else {
-                    blob.content = JSON.stringify(documentAttributes);
-                }
-            }
+            blob.content = fromUtf8ToBase64(JSON.stringify(documentAttributes));
         }
 
         return blob.content;

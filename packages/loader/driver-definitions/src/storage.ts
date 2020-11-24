@@ -65,14 +65,9 @@ export interface IDocumentStorageService {
     getVersions(versionId: string | null, count: number): Promise<IVersion[]>;
 
     /**
-     * Reads the object with the given ID, returns content in base64
+     * Reads the object with the given ID
      */
     read(id: string): Promise<string>;
-
-    /**
-     * Reads the object with the given ID, returns content in utf8
-     */
-    readString(id: string): Promise<string>;
 
     /**
      * Writes to the object with the given ID
