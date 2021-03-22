@@ -11,7 +11,7 @@ export { TestComponent } from './test';
 
 
 export const fluidExport = new ContainerRuntimeFactoryWithDefaultDataStore(
-    TestComponent.name,
+    TestComponent.getFactory(),
     new Map([
         [TestComponent.name, Promise.resolve(TestComponent.getFactory())]
     ])

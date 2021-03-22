@@ -35,7 +35,6 @@ export class TestComponent extends DataObject implements ISyncMessageHandler {
       [SyncBridge.name, import("../bridge").then((m) => m.SyncBridge.getFactory())],
       [TestConnector.name, import("./test-connector").then((m) => m.TestConnector.getFactory())]
     ],
-    /* onDemandInstantiation */ true
   );
 
   protected async initializingFirstTime() {
@@ -49,9 +48,7 @@ export class TestComponent extends DataObject implements ISyncMessageHandler {
     //   throw new Error('Could not create SyncBridgeClient');
     // }
 
-    const testConnector = await TestConnector.getFactory().createChildInstance(this.context);
-
-    const syncBridge = await SyncBridge.getFactory().createChildInstance(this.context, { connectorHandle: testConnector.handle });
+    const syncBridge = await SyncBridge.getFactory().createChildInstance(this.context);
     this.root.set(this.sbClientKey, syncBridge.handle);
   }
 
