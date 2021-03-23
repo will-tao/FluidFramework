@@ -1,4 +1,6 @@
 import { DataObject, DataObjectFactory } from "@fluidframework/aqueduct";
+import { IFluidTokenProvider } from "@fluidframework/container-definitions";
+import { IFluidObject } from "@fluidframework/core-interfaces";
 import { ISyncBridgeConnector, ISyncMessageHandler, SyncBridgeConnectorContext, SyncMessage, SyncMessageHandlerResult } from "syncbridge";
 import { IStorageUtil, StorageUtil } from "../storage";
 
@@ -9,24 +11,25 @@ export class AzureBlobConnector extends DataObject implements ISyncBridgeConnect
     public static get ComponentName() {
         return 'AzureBlobConnector';
       }
-    
+
       public static readonly factory = new DataObjectFactory(AzureBlobConnector.ComponentName, AzureBlobConnector, [], {});
 
       protected async initializingFirstTime() {
         console.log('TestConnector initializingFirstTime');
       }
-    
+
       protected async hasInitialized() {
         if (!isWebClient()){
-            this.StorageUtilModule = new StorageUtil(this.context.documentId);
+            const tokenprovider: IFluidTokenProvider = (this.context.containerRuntime as IFluidObject).IFluidTokenProvider;
+            this.StorageUtilModule = new StorageUtil(this.context.documentId, tokenprovider['intelligence'] as any);
 
         }
-        else{
-        this.StorageUtilModule = new StorageUtil(this.context.documentId, true);
-        }
+        // else{
+        // this.StorageUtilModule = new StorageUtil(this.context.documentId, true);
+        // }
         console.log('TestConnector hasInitialized');
       }
-    
+
       public get ISyncBridgeConnector() {
         return this;
       }
@@ -39,10 +42,10 @@ export class AzureBlobConnector extends DataObject implements ISyncBridgeConnect
         this.connectorContext = context;
         this.connectorContext.client.registerSyncMessageHandler(this);
       }
-    
+
 
       public handleSyncMessage = async (syncMessage: SyncMessage): Promise<SyncMessageHandlerResult | undefined> => {
-        
+
         return await this.handleSyncMessageInternal(syncMessage);
       };
 
@@ -56,7 +59,7 @@ export class AzureBlobConnector extends DataObject implements ISyncBridgeConnect
               } as SyncMessageHandlerResult;
             }
       }
-    
+
       public static getFactory() {
         return this.factory;
       }

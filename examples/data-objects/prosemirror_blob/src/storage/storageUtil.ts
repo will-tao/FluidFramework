@@ -16,10 +16,11 @@ export class StorageUtil implements IStorageUtil {
     //  private readonly initialVal = "{\"doc\":{\"type\":\"doc\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"Helllo This is frd\"}]}]},\"selection\":{\"type\":\"text\",\"anchor\":1,\"head\":1}}";
     private readonly storageKey = "FluidPOC_Prosemirror";
     private readonly documentId;
+    private readonly tokenString;
     //  private readonly markdownStorageKey = "Markdown_Fluid";
     private azureStorage: AzureBlobStorage;
 
-    constructor(documentId: string, webView?: boolean) {
+    constructor(documentId: string, tokenString?:string, webView?: boolean) {
 
         // sessionStorage.setItem(this.storageKey, this.initialVal);
 
@@ -27,6 +28,7 @@ export class StorageUtil implements IStorageUtil {
         //     localStorage.setItem(this.markdownStorageKey, "# Hello World!");
         // }
         this.documentId = documentId
+        this.tokenString = tokenString
         this.azureStorage = this.storageAccount(webView);
         // console.log(this.azureStorage);
         // this.azureStorage.putBlockBlob("samples", "sampletext.txt", "# Hello World!")
@@ -51,7 +53,7 @@ export class StorageUtil implements IStorageUtil {
         if (webView) {
             sasUrl = ""
         }
-        const azureStorage = new AzureBlobStorage(" **Enter azure blob storage connection String** ", sasUrl)
+        const azureStorage = new AzureBlobStorage(this.tokenString, sasUrl)
         //const data = await azureStorage.getBlockBlob("samples", "sampletext.txt");
         //console.log(data);
         return azureStorage;

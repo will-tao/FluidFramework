@@ -7,6 +7,7 @@ import {
     IRequest,
     IResponse,
     IFluidHandle,
+    IFluidObject,
 } from "@fluidframework/core-interfaces";
 import { DataObject, DataObjectFactory } from "@fluidframework/aqueduct";
 import {
@@ -26,6 +27,7 @@ import { convertToMarkdown, getNodeFromMarkdown } from './utils';
 import { BlobItem } from "@azure/storage-blob";
 import { ISyncMessageHandler, TestComponent, SyncBridge, SyncMessage, SyncMessageHandlerResult, SyncMessageType } from "syncbridge"
 import { AzureBlobConnector } from "./connector/AzureConnector";
+import { IFluidTokenProvider } from "@fluidframework/container-definitions";
 
 
 function createTreeMarkerOps(
@@ -97,7 +99,7 @@ export class ProseMirror extends DataObject implements IFluidHTMLView, IProvideR
     public snapshotList: BlobItem[] = [];
     private readonly sbClientKey: string = 'sbClientKey';
     private syncBridge!: SyncBridge;
-  
+
     // private readonly debouncingInterval: number = 1000;
 
 
@@ -152,7 +154,8 @@ export class ProseMirror extends DataObject implements IFluidHTMLView, IProvideR
         await client.registerSyncMessageHandler(this);
         // this.StorageUtilModule = new StorageUtil(); //TO Be removed
         if (!isWebClient()) {
-            this.StorageUtilModule = new StorageUtil(this.context.documentId);
+            const tokenprovider:IFluidTokenProvider = (this.context.containerRuntime as IFluidObject).IFluidTokenProvider
+            this.StorageUtilModule = new StorageUtil(this.context.documentId,tokenprovider['intelligence'] as any);
             let initialVal = await this.StorageUtilModule.getMardownDataAndConvertIntoNode(schema);
             if (initialVal) {
                 await this.collabManager.initializeValue(initialVal)

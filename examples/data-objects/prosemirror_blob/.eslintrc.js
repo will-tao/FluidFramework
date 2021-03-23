@@ -20,6 +20,7 @@ module.exports = {
         "@typescript-eslint/comma-dangle": "off",
         "@typescript-eslint/semi": "off",
         "@typescript-eslint/consistent-type-assertions": "off",
+        "@typescript-eslint/dot-notation": "off",
         "max-len": "off",
         "no-trailing-spaces": "off",
         "space-before-blocks": "off",
