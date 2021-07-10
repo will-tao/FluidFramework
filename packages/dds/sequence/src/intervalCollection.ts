@@ -368,12 +368,13 @@ export class LocalIntervalCollection<TInterval extends ISerializableInterval> {
         if (serializedInterval.properties?.[reservedIntervalIdKey] === undefined) {
             // An interval came over the wire without an ID, so create a non-unique one based on start/end.
             // This will allow all clients to refer to this interval consistently.
-            serializedInterval.properties = MergeTree.addProperties(
-                serializedInterval.properties,
-                {
-                    [reservedIntervalIdKey]: this.createLegacyId(serializedInterval.start, serializedInterval.end),
-                },
-            );
+            // Make the ID immutable for safety's sake.
+            const newProps = {};
+            Object.defineProperty(newProps, reservedIntervalIdKey, {
+                value: this.createLegacyId(serializedInterval.start, serializedInterval.end),
+                enumerable: true,
+            });
+            serializedInterval.properties = MergeTree.addProperties(serializedInterval.properties, newProps);
         }
     }
 
@@ -525,7 +526,11 @@ export class LocalIntervalCollection<TInterval extends ISerializableInterval> {
                 interval.properties[MergeTree.reservedRangeLabelsKey] = [this.label];
             }
             if (interval.properties[reservedIntervalIdKey] === undefined) {
-                interval.properties[reservedIntervalIdKey] = uuid();
+                // Create a new ID and make it immutable.
+                Object.defineProperty(interval.properties, reservedIntervalIdKey, {
+                    value: uuid(),
+                    enumerable: true,
+                });
             }
             this.intervalTree.put(interval, this.conflictResolver);
             this.endIntervalTree.put(interval, interval, this.endConflictResolver);
